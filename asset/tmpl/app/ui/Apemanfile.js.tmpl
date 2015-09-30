@@ -1,0 +1,67 @@
+/**
+ * Configuration file for apeman projects.
+ * @see https://github.com/apeman-labo/apeman
+ */
+
+"use strict";
+
+module.exports = {
+    /** Current working directory path */
+    get $cwd() {
+        return __dirname;
+    },
+    /** Parent Apemanfile. */
+    get $parent() {
+        return require('../../Apemanfile.js');
+    },
+    /**
+     * apeman tmpl configurations.
+     * @see https://github.com/apeman-labo/apeman-tmpl
+     */
+    get $tmpls() {
+        return {}
+    },
+    /**
+     * apeman task configurations.
+     * @see https://github.com/apeman-labo/apeman-task
+     */
+    get $tasks() {
+        var mkdir = require('apeman-task-mkdir'),
+            symlink = require('apeman-task-symlink');
+        return {
+            'build': [
+                'struct'
+            ],
+            'struct': [
+                'struct:mkdir',
+                'struct:symlink'
+            ],
+            'struct:mkdir': mkdir([
+                'public',
+                'src',
+                'src/javascripts',
+                'src/stylesheets',
+                'src/images',
+                'src/fonts',
+                'test'
+            ]),
+            'struct:symlink': [
+                symlink('src/images', 'public/images'),
+                symlink('src/fonts', 'public/fonts')
+            ]
+        }
+    },
+    /**
+     * apeman ui configurations.
+     * @see https://github.com/apeman-labo/apeman-ui
+     */
+    get $ui() {
+        return {}
+    }
+};
+
+
+if (!module.parent) {
+    // Execute this file as apeman bin.
+    require('apeman').cli(process.argv);
+}

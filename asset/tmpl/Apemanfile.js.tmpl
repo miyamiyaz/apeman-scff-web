@@ -1,0 +1,174 @@
+/**
+ * Configuration file for apeman projects.
+ * @see https://github.com/apeman-labo/apeman
+ */
+
+"use strict";
+
+module.exports = {
+    /** Current working directory path */
+    get $cwd() {
+        return __dirname;
+    },
+    /** Package data. */
+    get $pkg() {
+        return require('./package.json');
+    },
+    /**
+     * apeman tmpl configurations.
+     * @see https://github.com/apeman-labo/apeman-tmpl
+     */
+    get $tmpls() {
+        var ci = require('apeman-tmpl-ci'),
+            dot = require('apeman-tmpl-dot'),
+            readme = require('apeman-tmpl-readme');
+        return {
+            'ci/build.js': ci({cmd: 'task', args: 'build'}),
+            'ci/coverage.js': ci({cmd: 'task', args: 'coverage'}),
+            'ci/report.js': ci({cmd: 'task', args: 'report'}),
+            'ci/setup.js': ci({cmd: 'task', args: 'setup'}),
+            'ci/test.js': ci({cmd: 'task', args: 'test'}),
+            'ci/update.js': ci({cmd: 'task', args: 'update'}),
+            'ci/release.js': ci({cmd: 'task', args: 'release'}),
+            'doc/readme/01 - Requirements.md.hbs': readme({type: 'requirementsSection'}),
+            'doc/readme/02 - Setup.md.hbs': readme({type: 'setupSection'}),
+            'doc/links.json': '{}',
+            'doc/overview.md': '',
+            '.README.md.bud': dot({type: 'readmeMdBud'}),
+            '.LICENSE.md.bud': dot({type: 'licenseBud'}),
+            '.gitignore': dot({type: 'gitignore'}),
+            '.npmignore': dot({type: 'npmignore'}),
+            '.codeclimate.yml': dot({type: 'codeclimateYml'}),
+            '.travis.yml': dot({type: 'travisYml'})
+        }
+    },
+    /**
+     * apeman task configurations.
+     * @see https://github.com/apeman-labo/apeman-task
+     */
+    get $tasks() {
+        var chmod = require('apeman-task-chmod'),
+            mkdir = require('apeman-task-mkdir'),
+            task = require('apeman-task-task'),
+            tmpl = require('apeman-task-tmpl'),
+            coz = require('apeman-task-coz'),
+            mocha = require('apeman-task-mocha'),
+            coverage = require('apeman-task-coverage'),
+            install = require('apeman-task-install'),
+            sure = require('apeman-task-sure'),
+            push = require('apeman-task-push'),
+            execcli = require('apeman-task-execcli'),
+            taggit = require('apeman-task-taggit'),
+            symlink = require('apeman-task-symlink'),
+            versionup = require('apeman-task-versionup'),
+            update = require('apeman-task-update'),
+            publish = require('apeman-task-publish'),
+            bower = require('apeman-task-bower'),
+            codeclimate = require('apeman-task-codeclimate');
+
+
+        function _task(name, conf) {
+            return task(name, {
+                configuration: require.resolve(conf)
+            });
+        }
+
+        function _apiTask(name) {
+            return _task(name, './app/api/Apemanfile');
+        }
+
+        function _uiTask(name) {
+            return _task(name, './app/ui/Apemanfile');
+        }
+
+        return {
+            'app:api:build': _apiTask('build'),
+            'app:ui:build': _uiTask('build'),
+            'build': [
+                'struct',
+                'render',
+                'app:api:build',
+                'app:ui:build'
+            ],
+            'coverage': [
+                'coverage:unit'
+            ],
+            'coverage:unit': coverage(
+                'apeman task test:unit'
+            ),
+            'install': [
+                'install:npm',
+                'install:bower'
+            ],
+            'install:npm': install(),
+            'install:bower': bower([
+                'jquery',
+                'angular'
+            ], {dest: 'lib/browser-lib/third_party'}),
+            'render': [
+                'render:coz',
+                'render:tmpl'
+            ],
+            'render:coz': coz([
+                '.*.bud',
+                'test/**/.*.bud'
+            ]),
+            'render:tmpl': tmpl({}),
+            'report': codeclimate('coverage/lcov.info'),
+            'setup': [
+                'install'
+            ],
+            'struct': [
+                'struct:chmod',
+                'struct:mkdir',
+                'struct:symlink'
+            ],
+            'struct:chmod': chmod({
+                'ci/*.js': '755'
+            }),
+            'struct:mkdir': mkdir([
+                'app',
+                'app/api',
+                'app/ui',
+                'app/admin-api',
+                'app/admin-ui',
+                'bin',
+                'ci',
+                'config',
+                'db',
+                'doc',
+                'doc/readme',
+                'lib',
+                'lib/browser-lib',
+                'lib/node-lib',
+                'test',
+                'tmp',
+                'log',
+                'log/api-log',
+                'log/admin-api-log'
+            ]),
+            'struct:symlink': [],
+            'test': [
+            ],
+            'update': update({
+                pkgPath: require.resolve('./package.json')
+            }),
+            'release': [
+                sure({msg: 'Are you sure to release? [y/N]'}),
+                'build',
+                'test',
+                taggit({}),
+                publish({}),
+                versionup({}),
+                push({msg: 'Create a new version.'})
+
+            ]
+        }
+    }
+};
+
+
+if (!module.parent) {
+    // Execute this file as apeman bin.
+    require('apeman').cli(process.argv);
+}
