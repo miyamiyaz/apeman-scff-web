@@ -10,17 +10,15 @@ module.exports = {
     get $cwd() {
         return __dirname;
     },
-    /** Parent Apemanfile. */
-    get $parent() {
-        return require('../../Apemanfile.js');
+    /** Package data. */
+    get $pkg() {
+        return require('../../package.json');
     },
     /**
-     * apeman app configurations.
-     * @see https://github.com/apeman-labo/apeman-app
+     * apeman ui configurations.
+     * @see https://github.com/apeman-labo/apeman-ui
      */
-    get $apps() {
-        var route = require('apeman-app-route'),
-            log = require('apeman-app-log');
+    get $ui() {
         return {}
     },
     /**
@@ -36,24 +34,19 @@ module.exports = {
      */
     get $tasks() {
         var mkdir = require('apeman-task-mkdir'),
-            symlink = require('apeman-task-symlink');
+            concat = require('apeman-task-concat');
         return {
             'build': [
                 'struct'
             ],
             'struct': [
-                'struct:mkdir',
-                'struct:symlink'
+                'struct:mkdir'
             ],
             'struct:mkdir': mkdir([
-                'routes',
-                'schema',
+                'src',
+                'dist',
                 'test'
-            ]),
-            'struct:symlink': symlink(
-                '../../var/log/api-log',
-                'log'
-            )
+            ])
         }
     }
 };

@@ -19,7 +19,23 @@ module.exports = {
      * @see https://github.com/apeman-labo/apeman-tmpl
      */
     get $tmpls() {
-        return {}
+        var scss = require('apeman-tmpl-scss');
+        return {
+            'src/scss/variables/size.scss': scss({type: 'size'}),
+            'src/scss/variables/color.scss': scss({type: 'color'}),
+            'src/scss/attributes/container.scss': scss({type: 'container'}),
+            'src/scss/media/large-media.scss': scss({type: 'largeMedia'}),
+            'src/scss/media/medium-media.scss': scss({type: 'mediumMedia'}),
+            'src/scss/media/small-media.scss': scss({type: 'smallMedia'}),
+            'src/scss/components/html.scss': scss({type: 'component', name: 'html'}),
+            'src/scss/components/body.scss': scss({type: 'component', name: 'body'}),
+            'src/scss/components/main.scss': scss({type: 'component', name: 'main'}),
+            'src/scss/components/aside.scss': scss({type: 'component', name: 'aside'}),
+            'src/scss/components/header.scss': scss({type: 'component', name: 'header'}),
+            'src/scss/components/footer.scss': scss({type: 'component', name: 'footer'}),
+            'src/scss/components/table.scss': scss({type: 'component', name: 'table'}),
+            'src/scss/ui-app.scss': scss({type: 'application'})
+        }
     },
     /**
      * apeman task configurations.
@@ -27,11 +43,29 @@ module.exports = {
      */
     get $tasks() {
         var mkdir = require('apeman-task-mkdir'),
+            jsx = require('apeman-task-jsx'),
+            coz = require('apeman-task-coz'),
+            scss = require('apeman-task-scss'),
+            tmpl = require('apeman-task-tmpl'),
             symlink = require('apeman-task-symlink');
         return {
             'build': [
-                'struct'
+                'struct',
+                'render',
+                'compile'
             ],
+            'compile': [
+                'compile:scss'
+            ],
+            'compile:scss': scss(
+                'src/scss/ui-app.scss', 'public/ui-app.css'
+            ),
+            'render': [
+                'render:coz',
+                'render:tmpl'
+            ],
+            'render:coz': coz([]),
+            'render:tmpl': tmpl({}),
             'struct': [
                 'struct:mkdir',
                 'struct:symlink'
@@ -39,15 +73,13 @@ module.exports = {
             'struct:mkdir': mkdir([
                 'public',
                 'src',
-                'src/javascripts',
-                'src/stylesheets',
-                'src/images',
-                'src/fonts',
+                'src/scss',
+                'src/jsx',
                 'test'
             ]),
             'struct:symlink': [
-                symlink('src/images', 'public/images'),
-                symlink('src/fonts', 'public/fonts')
+                symlink('../../asset/fonts', 'public/fonts'),
+                symlink('../../asset/images', 'public/images')
             ]
         }
     },
@@ -57,6 +89,23 @@ module.exports = {
      */
     get $ui() {
         return {}
+    },
+    /**
+     * apeman watch configurations.
+     * @see https://github.com/apeman-labo/apeman-watch
+     */
+    get $watches() {
+        return {
+            'all': [
+                'scss-to-compile'
+            ],
+            'scss-to-compile': {
+                pattern: 'src/scss/*.scss',
+                action: function () {
+                    console.log('scss changed!');
+                }
+            }
+        }
     }
 };
 

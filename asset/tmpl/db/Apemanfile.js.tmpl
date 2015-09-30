@@ -1,0 +1,37 @@
+/**
+ * Configuration file for apeman projects.
+ * @see https://github.com/apeman-labo/apeman
+ */
+
+"use strict";
+
+module.exports = {
+    /** Current working directory path */
+    get $cwd() {
+        return __dirname;
+    },
+    /** Package data. */
+    get $pkg() {
+        return require('../package.json');
+    },
+    /**
+     * apeman tmpl configurations.
+     * @see https://github.com/apeman-labo/apeman-tmpl
+     */
+    get $tmpls() {
+        return {}
+    },
+    /**
+     * apeman task configurations.
+     * @see https://github.com/apeman-labo/apeman-task
+     */
+    get $tasks() {
+        return {}
+    }
+};
+
+
+if (!module.parent) {
+    // Execute this file as apeman bin.
+    require('apeman').cli(process.argv);
+}

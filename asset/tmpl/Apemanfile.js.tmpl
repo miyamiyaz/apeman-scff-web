@@ -24,6 +24,13 @@ module.exports = {
             readme = require('apeman-tmpl-readme');
         return {
             'ci/build.js': ci({cmd: 'task', args: 'build'}),
+            'ci/misc/build_api_app.js': ci({cmd: 'task', args: 'app:api:build'}),
+            'ci/misc/build_asset.js': ci({cmd: 'task', args: 'asset:build'}),
+            'ci/misc/build_ui_app.js': ci({cmd: 'task', args: 'app:ui:build'}),
+            'ci/misc/build_browser_lib.js': ci({cmd: 'task', args: 'lib:browser:build'}),
+            'ci/misc/install_bower.js': ci({cmd: 'task', args: 'install:bower'}),
+            'ci/misc/install_npm.js': ci({cmd: 'task', args: 'install:npm'}),
+            'ci/misc/build_node_lib.js': ci({cmd: 'task', args: 'lib:node:build'}),
             'ci/coverage.js': ci({cmd: 'task', args: 'coverage'}),
             'ci/report.js': ci({cmd: 'task', args: 'report'}),
             'ci/setup.js': ci({cmd: 'task', args: 'setup'}),
@@ -64,37 +71,50 @@ module.exports = {
             update = require('apeman-task-update'),
             publish = require('apeman-task-publish'),
             bower = require('apeman-task-bower'),
+            watch = require('apeman-task-watch'),
             codeclimate = require('apeman-task-codeclimate');
 
 
-        function _task(name, conf) {
-            return task(name, {
-                configuration: require.resolve(conf)
+        function _task(apemanfile, taskName) {
+            return task(taskName, {
+                configuration: require.resolve(apemanfile)
             });
         }
 
-        function _apiTask(name) {
-            return _task(name, './app/api/Apemanfile');
+        function _watch(apemanfile, watchName) {
+            return watch(watchName, {
+                configuration: require.resolve(apemanfile)
+            });
         }
 
-        function _uiTask(name) {
-            return _task(name, './app/ui/Apemanfile');
-        }
+        var _apiAppTask = _task.bind(_task, './app/api/Apemanfile'),
+            _uiAppTask = _task.bind(_task, './app/ui/Apemanfile'),
+            _assetTask = _task.bind(_task, './asset/Apemanfile'),
+            _browserLibTask = _task.bind(_task, './lib/browser-lib/Apemanfile'),
+            _nodeLibTask = _task.bind(_task, './lib/node-lib/Apemanfile');
+
+        var _uiAppWatch = _watch.bind(_watch, './app/ui/Apemanfile');
 
         return {
-            'app:api:build': _apiTask('build'),
-            'app:ui:build': _uiTask('build'),
+            'app:api:build': _apiAppTask('build'),
+            'app:ui:build': _uiAppTask('build'),
+            'asset:build': _assetTask('build'),
+            'lib:browser:build': _browserLibTask('build'),
+            'lib:node:build': _nodeLibTask('build'),
             'build': [
                 'struct',
                 'render',
                 'app:api:build',
-                'app:ui:build'
+                'app:ui:build',
+                'asset:build',
+                'lib:browser:build',
+                'lib:node:build'
             ],
             'coverage': [
                 'coverage:unit'
             ],
             'coverage:unit': coverage(
-                'apeman task test:unit'
+                './ci/test.js'
             ),
             'install': [
                 'install:npm',
@@ -102,9 +122,9 @@ module.exports = {
             ],
             'install:npm': install(),
             'install:bower': bower([
-                'jquery',
-                'angular'
-            ], {dest: 'lib/browser-lib/third_party'}),
+                'font-awesome',
+                'ionicons'
+            ]),
             'render': [
                 'render:coz',
                 'render:tmpl'
@@ -116,7 +136,8 @@ module.exports = {
             'render:tmpl': tmpl({}),
             'report': codeclimate('coverage/lcov.info'),
             'setup': [
-                'install'
+                'install',
+                'build'
             ],
             'struct': [
                 'struct:chmod',
@@ -124,7 +145,9 @@ module.exports = {
                 'struct:symlink'
             ],
             'struct:chmod': chmod({
-                'ci/*.js': '755'
+                'bin/*.js': '755',
+                'ci/*.js': '755',
+                'ci/misc/*.js': '755'
             }),
             'struct:mkdir': mkdir([
                 'app',
@@ -132,10 +155,15 @@ module.exports = {
                 'app/ui',
                 'app/admin-api',
                 'app/admin-ui',
+                'asset',
+                'asset/images',
+                'asset/fonts',
                 'bin',
                 'ci',
+                'ci/misc',
                 'config',
                 'db',
+                'db/models',
                 'doc',
                 'doc/readme',
                 'lib',
@@ -143,13 +171,13 @@ module.exports = {
                 'lib/node-lib',
                 'test',
                 'tmp',
-                'log',
-                'log/api-log',
-                'log/admin-api-log'
+                'var',
+                'var/log',
+                'var/log/api-log',
+                'var/log/admin-api-log'
             ]),
             'struct:symlink': [],
-            'test': [
-            ],
+            'test': [],
             'update': update({
                 pkgPath: require.resolve('./package.json')
             }),
@@ -161,8 +189,11 @@ module.exports = {
                 publish({}),
                 versionup({}),
                 push({msg: 'Create a new version.'})
-
-            ]
+            ],
+            'watch': [
+                'watch:ui-app'
+            ],
+            'watch:ui-app': _uiAppWatch('all')
         }
     }
 };

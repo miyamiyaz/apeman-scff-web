@@ -1,0 +1,60 @@
+/**
+ * Configuration file for apeman projects.
+ * @see https://github.com/apeman-labo/apeman
+ */
+
+"use strict";
+
+module.exports = {
+    /** Current working directory path */
+    get $cwd() {
+        return __dirname;
+    },
+    /** Package data. */
+    get $pkg() {
+        return require('../package.json');
+    },
+    /**
+     * apeman task configurations.
+     * @see https://github.com/apeman-labo/apeman-task
+     */
+    get $tasks() {
+        var mkdir = require('apeman-task-mkdir'),
+            copy = require('apeman-task-copy');
+        return {
+            'build': [
+                'struct',
+                'copy'
+            ],
+            'struct': [
+                'struct:mkdir'
+            ],
+            'struct:mkdir': mkdir([
+                'fonts',
+                'images'
+            ]),
+            'copy': [
+                'copy:font-awesome',
+                'copy:ionicons'
+            ],
+            'copy:font-awesome': [
+                copy(
+                    '../bower_components/font-awesome/fonts/*.*',
+                    'fonts'
+                )
+            ],
+            'copy:ionicons': [
+                copy(
+                    '../bower_components/Ionicons/fonts/*.*',
+                    'fonts'
+                )
+            ]
+        }
+    }
+};
+
+
+if (!module.parent) {
+    // Execute this file as apeman bin.
+    require('apeman').cli(process.argv);
+}
