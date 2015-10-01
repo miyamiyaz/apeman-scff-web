@@ -26,7 +26,18 @@ module.exports = {
      * @see https://github.com/apeman-labo/apeman-task
      */
     get $tasks() {
-        return {}
+        var mkdir = require('apeman-task-mkdir');
+        return {
+            'build': [
+                'struct'
+            ],
+            'struct': [
+                'struct:mkdir'
+            ],
+            'struct:mkdir': mkdir([
+                'models'
+            ])
+        }
     }
 };
 
