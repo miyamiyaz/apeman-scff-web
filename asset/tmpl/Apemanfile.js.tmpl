@@ -24,6 +24,7 @@ module.exports = {
             dot = require('apeman-tmpl-dot'),
             readme = require('apeman-tmpl-readme'),
             locale = require('apeman-tmpl-locale'),
+            db = require('apeman-tmpl-db'),
             env = require('apeman-tmpl-env');
         return {
             'ci/build.js': ci({cmd: 'task', args: 'build'}),
@@ -40,6 +41,8 @@ module.exports = {
             'ci/test.js': ci({cmd: 'task', args: 'test'}),
             'ci/update.js': ci({cmd: 'task', args: 'update'}),
             'ci/release.js': ci({cmd: 'task', args: 'release'}),
+            'db/index.js': db({type: 'indexJs'}),
+            'db/models/user.json': db({type: 'userJson'}),
             'doc/readme/01 - Requirements.md.hbs': readme({type: 'requirementsSection'}),
             'doc/readme/02 - Setup.md.hbs': readme({type: 'setupSection'}),
             'doc/links.json': '{}',
