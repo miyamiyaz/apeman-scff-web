@@ -19,24 +19,39 @@ module.exports = {
      * @see https://github.com/apeman-labo/apeman-tmpl
      */
     get $tmpls() {
-        return {}
+        var db = require('apeman-tmpl-db');
+        return {
+            'index.js': db({type: 'indexJs'}),
+            'models/user.json': db({type: 'userJson'})
+        }
     },
     /**
      * apeman task configurations.
      * @see https://github.com/apeman-labo/apeman-task
      */
     get $tasks() {
-        var mkdir = require('apeman-task-mkdir');
+        var mkdir = require('apeman-task-mkdir'),
+            coz = require('apeman-task-coz'),
+            tmpl = require('apeman-task-tmpl');
+
         return {
             'build': [
-                'struct'
+                'struct',
+                'render'
             ],
             'struct': [
                 'struct:mkdir'
             ],
             'struct:mkdir': mkdir([
                 'models'
-            ])
+            ]),
+            'render': [
+                'render:coz',
+                'render:tmpl'
+            ],
+            'render:coz': coz([
+            ]),
+            'render:tmpl': tmpl({})
         }
     }
 };

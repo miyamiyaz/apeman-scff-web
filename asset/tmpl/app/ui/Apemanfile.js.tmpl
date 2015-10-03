@@ -15,6 +15,28 @@ module.exports = {
         return require('../../Apemanfile.js');
     },
     /**
+     * apeman app configurations.
+     * @see https://github.com/apeman-labo/apeman-app
+     */
+    get $apps() {
+        var route = require('apeman-app-route'),
+            header = require('apeman-app-header'),
+            lang = require('apeman-app-lang'),
+            json = require('apeman-app-json'),
+            delay = require('apeman-app-delay'),
+            log = require('apeman-app-log');
+        return {
+            '/': [
+                header(),
+                lang(),
+                json(),
+                delay(0),
+                log('log/access-log', {}),
+                route({})
+            ]
+        }
+    },
+    /**
      * apeman tmpl configurations.
      * @see https://github.com/apeman-labo/apeman-tmpl
      */
@@ -80,16 +102,10 @@ module.exports = {
             ]),
             'struct:symlink': [
                 symlink('../../asset/fonts', 'public/fonts'),
-                symlink('../../asset/images', 'public/images')
+                symlink('../../asset/images', 'public/images'),
+                symlink('../../var/log/ui-log', 'log')
             ]
         }
-    },
-    /**
-     * apeman ui configurations.
-     * @see https://github.com/apeman-labo/apeman-ui
-     */
-    get $ui() {
-        return {}
     },
     /**
      * apeman watch configurations.

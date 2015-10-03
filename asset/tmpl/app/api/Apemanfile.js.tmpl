@@ -20,8 +20,21 @@ module.exports = {
      */
     get $apps() {
         var route = require('apeman-app-route'),
+            header = require('apeman-app-header'),
+            lang = require('apeman-app-lang'),
+            json = require('apeman-app-json'),
+            delay = require('apeman-app-delay'),
             log = require('apeman-app-log');
-        return {}
+        return {
+            '/': [
+                header(),
+                lang(),
+                json(),
+                delay(0),
+                log('log/access-log', {}),
+                route({})
+            ]
+        }
     },
     /**
      * apeman tmpl configurations.
@@ -50,10 +63,9 @@ module.exports = {
                 'schema',
                 'test'
             ]),
-            'struct:symlink': symlink(
-                '../../var/log/api-log',
-                'log'
-            )
+            'struct:symlink': [
+                symlink('../../var/log/api-log', 'log')
+            ]
         }
     }
 };

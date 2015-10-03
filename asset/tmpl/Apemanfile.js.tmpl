@@ -14,6 +14,14 @@ module.exports = {
     get $pkg() {
         return require('./package.json');
     },
+    /** Prototype apps */
+    get $proto() {
+        return [
+            require('apeman-proto-abstract'),
+            require('apeman-proto-basic'),
+            require('apeman-proto-git')
+        ];
+    },
     /**
      * apeman tmpl configurations.
      * @see https://github.com/apeman-labo/apeman-tmpl
@@ -24,7 +32,6 @@ module.exports = {
             dot = require('apeman-tmpl-dot'),
             readme = require('apeman-tmpl-readme'),
             locale = require('apeman-tmpl-locale'),
-            db = require('apeman-tmpl-db'),
             env = require('apeman-tmpl-env');
         return {
             'ci/build.js': ci({cmd: 'task', args: 'build'}),
@@ -33,16 +40,10 @@ module.exports = {
             'ci/misc/build_ui_app.js': ci({cmd: 'task', args: 'app:ui:build'}),
             'ci/misc/build_browser_lib.js': ci({cmd: 'task', args: 'lib:browser:build'}),
             'ci/misc/install_bower.js': ci({cmd: 'task', args: 'install:bower'}),
-            'ci/misc/install_npm.js': ci({cmd: 'task', args: 'install:npm'}),
             'ci/misc/build_node_lib.js': ci({cmd: 'task', args: 'lib:node:build'}),
             'ci/coverage.js': ci({cmd: 'task', args: 'coverage'}),
             'ci/report.js': ci({cmd: 'task', args: 'report'}),
-            'ci/setup.js': ci({cmd: 'task', args: 'setup'}),
-            'ci/test.js': ci({cmd: 'task', args: 'test'}),
-            'ci/update.js': ci({cmd: 'task', args: 'update'}),
             'ci/release.js': ci({cmd: 'task', args: 'release'}),
-            'db/index.js': db({type: 'indexJs'}),
-            'db/models/user.json': db({type: 'userJson'}),
             'doc/readme/01 - Requirements.md.hbs': readme({type: 'requirementsSection'}),
             'doc/readme/02 - Setup.md.hbs': readme({type: 'setupSection'}),
             'doc/links.json': '{}',
@@ -51,12 +52,11 @@ module.exports = {
             'env/database.json': env({type: 'databaseJson', name: pkg.name}),
             'env/port.json': env({type: 'portJson'}),
             'env/domain.json': env({type: 'domainJson'}),
-            'locales/en.json': locale({type: 'enJson'}),
-            'locales/ja.json': locale({type: 'jaJson'}),
-            'locales/index.js': locale({type: 'indexJs'}),
+            'locale/en.json': locale({type: 'enJson'}),
+            'locale/ja.json': locale({type: 'jaJson'}),
+            'locale/index.js': locale({type: 'indexJs'}),
             '.README.md.bud': dot({type: 'readmeMdBud'}),
             '.LICENSE.md.bud': dot({type: 'licenseBud'}),
-            '.gitignore': dot({type: 'gitignore'}),
             '.npmignore': dot({type: 'npmignore'}),
             '.codeclimate.yml': dot({type: 'codeclimateYml'}),
             '.travis.yml': dot({type: 'travisYml'})
@@ -74,14 +74,10 @@ module.exports = {
             coz = require('apeman-task-coz'),
             mocha = require('apeman-task-mocha'),
             coverage = require('apeman-task-coverage'),
-            install = require('apeman-task-install'),
             sure = require('apeman-task-sure'),
-            push = require('apeman-task-push'),
             execcli = require('apeman-task-execcli'),
-            taggit = require('apeman-task-taggit'),
             symlink = require('apeman-task-symlink'),
             versionup = require('apeman-task-versionup'),
-            update = require('apeman-task-update'),
             publish = require('apeman-task-publish'),
             bower = require('apeman-task-bower'),
             watch = require('apeman-task-watch'),
@@ -119,9 +115,9 @@ module.exports = {
             'build': [
                 'struct',
                 'render',
+                'asset:build',
                 'app:api:build',
                 'app:ui:build',
-                'asset:build',
                 'db:build',
                 'lib:browser:build',
                 'lib:node:build'
@@ -136,7 +132,6 @@ module.exports = {
                 'install:npm',
                 'install:bower'
             ],
-            'install:npm': install(),
             'install:bower': bower([
                 'font-awesome',
                 'ionicons'
@@ -182,26 +177,25 @@ module.exports = {
                 'lib',
                 'lib/browser-lib',
                 'lib/node-lib',
-                'locales',
+                'locale',
                 'tmp',
                 'var',
                 'var/log',
                 'var/log/api-log',
-                'var/log/admin-api-log'
+                'var/log/admin-api-log',
+                'var/log/ui-log',
+                'var/log/admin-ui-log'
             ]),
             'struct:symlink': [],
             'test': [],
-            'update': update({
-                pkgPath: require.resolve('./package.json')
-            }),
             'release': [
                 sure({msg: 'Are you sure to release? [y/N]'}),
                 'build',
                 'test',
-                taggit({}),
+                'git:tag',
                 publish({}),
                 versionup({}),
-                push({msg: 'Create a new version.'})
+                'git:push'
             ],
             'watch': [
                 'watch:ui-app'
