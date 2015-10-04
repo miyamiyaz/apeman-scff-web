@@ -14,12 +14,11 @@ module.exports = {
     get $pkg() {
         return require('../../package.json');
     },
-    /**
-     * apeman ui configurations.
-     * @see https://github.com/apeman-labo/apeman-ui
-     */
-    get $ui() {
-        return {}
+    /** Prototype apps */
+    get $proto() {
+        return [
+            require('apeman-proto-abstract')
+        ]
     },
     /**
      * apeman tmpl configurations.
@@ -40,9 +39,9 @@ module.exports = {
                 'struct'
             ],
             'struct': [
-                'struct:mkdir'
+                'fs:mkdir'
             ],
-            'struct:mkdir': mkdir([
+            'fs:mkdir': mkdir([
                 'src',
                 'dist',
                 'test'

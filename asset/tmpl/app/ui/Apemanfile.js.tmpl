@@ -14,6 +14,14 @@ module.exports = {
     get $parent() {
         return require('../../Apemanfile.js');
     },
+    /** Prototype apps */
+    get $proto() {
+        return [
+            require('apeman-proto-abstract'),
+            require('apeman-proto-basic'),
+            require('apeman-proto-sub')
+        ]
+    },
     /**
      * apeman app configurations.
      * @see https://github.com/apeman-labo/apeman-app
@@ -90,17 +98,17 @@ module.exports = {
             'render:coz': coz([]),
             'render:tmpl': tmpl({}),
             'struct': [
-                'struct:mkdir',
-                'struct:symlink'
+                'fs:mkdir',
+                'fs:symlink'
             ],
-            'struct:mkdir': mkdir([
+            'fs:mkdir': mkdir([
                 'public',
                 'src',
                 'src/scss',
                 'src/jsx',
                 'test'
             ]),
-            'struct:symlink': [
+            'fs:symlink': [
                 symlink('../../asset/fonts', 'public/fonts'),
                 symlink('../../asset/images', 'public/images'),
                 symlink('../../var/log/ui-log', 'log')

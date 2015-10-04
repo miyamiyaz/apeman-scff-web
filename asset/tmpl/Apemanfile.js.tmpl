@@ -14,13 +14,26 @@ module.exports = {
     get $pkg() {
         return require('./package.json');
     },
-    /** Prototype apps */
+    /** Prototype projects */
     get $proto() {
         return [
             require('apeman-proto-abstract'),
             require('apeman-proto-basic'),
-            require('apeman-proto-git')
+            require('apeman-proto-git'),
+            require('apeman-proto-sure'),
+            require('apeman-proto-npm')
         ];
+    },
+    /** Children projects */
+    get $children() {
+        return [
+            require('./app/api/Apemanfile'),
+            require('./app/ui/Apemanfile'),
+            require('./asset/Apemanfile'),
+            require('./db/Apemanfile'),
+            require('./lib/browser-lib/Apemanfile'),
+            require('./lib/node-lib/Apemanfile')
+        ]
     },
     /**
      * apeman tmpl configurations.
@@ -39,9 +52,8 @@ module.exports = {
             'ci/misc/build_asset.js': ci({cmd: 'task', args: 'asset:build'}),
             'ci/misc/build_ui_app.js': ci({cmd: 'task', args: 'app:ui:build'}),
             'ci/misc/build_browser_lib.js': ci({cmd: 'task', args: 'lib:browser:build'}),
-            'ci/misc/install_bower.js': ci({cmd: 'task', args: 'install:bower'}),
+            'ci/misc/install_bower.js': ci({cmd: 'task', args: 'bower:install'}),
             'ci/misc/build_node_lib.js': ci({cmd: 'task', args: 'lib:node:build'}),
-            'ci/coverage.js': ci({cmd: 'task', args: 'coverage'}),
             'ci/report.js': ci({cmd: 'task', args: 'report'}),
             'ci/release.js': ci({cmd: 'task', args: 'release'}),
             'doc/readme/01 - Requirements.md.hbs': readme({type: 'requirementsSection'}),
@@ -57,7 +69,6 @@ module.exports = {
             'locale/index.js': locale({type: 'indexJs'}),
             '.README.md.bud': dot({type: 'readmeMdBud'}),
             '.LICENSE.md.bud': dot({type: 'licenseBud'}),
-            '.npmignore': dot({type: 'npmignore'}),
             '.codeclimate.yml': dot({type: 'codeclimateYml'}),
             '.travis.yml': dot({type: 'travisYml'})
         }
@@ -72,13 +83,8 @@ module.exports = {
             task = require('apeman-task-task'),
             tmpl = require('apeman-task-tmpl'),
             coz = require('apeman-task-coz'),
-            mocha = require('apeman-task-mocha'),
-            coverage = require('apeman-task-coverage'),
-            sure = require('apeman-task-sure'),
             execcli = require('apeman-task-execcli'),
             symlink = require('apeman-task-symlink'),
-            versionup = require('apeman-task-versionup'),
-            publish = require('apeman-task-publish'),
             bower = require('apeman-task-bower'),
             watch = require('apeman-task-watch'),
             codeclimate = require('apeman-task-codeclimate');
@@ -122,25 +128,15 @@ module.exports = {
                 'lib:browser:build',
                 'lib:node:build'
             ],
-            'coverage': [
-                'coverage:unit'
-            ],
-            'coverage:unit': coverage(
-                './ci/test.js'
-            ),
             'install': [
-                'install:npm',
-                'install:bower'
+                'npm:install',
+                'bower:install'
             ],
-            'install:bower': bower([
+            'bower:install': bower([
                 'font-awesome',
                 'ionicons'
             ]),
-            'render': [
-                'render:coz',
-                'render:tmpl'
-            ],
-            'render:coz': coz([
+            'coz:render': coz([
                 '.*.bud',
                 'test/**/.*.bud'
             ]),
@@ -148,19 +144,15 @@ module.exports = {
             'report': codeclimate('coverage/lcov.info'),
             'setup': [
                 'install',
+                'cmd:tmpl',
                 'build'
             ],
             'struct': [
-                'struct:chmod',
-                'struct:mkdir',
-                'struct:symlink'
+                'fs:mkdir',
+                'fs:chmod',
+                'fs:symlink'
             ],
-            'struct:chmod': chmod({
-                'bin/*.js': '755',
-                'ci/*.js': '755',
-                'ci/misc/*.js': '755'
-            }),
-            'struct:mkdir': mkdir([
+            'fs:mkdir': mkdir([
                 'app',
                 'app/api',
                 'app/ui',
@@ -186,16 +178,19 @@ module.exports = {
                 'var/log/ui-log',
                 'var/log/admin-ui-log'
             ]),
-            'struct:symlink': [],
+            'fs:symlink': [],
             'test': [],
             'release': [
-                sure({msg: 'Are you sure to release? [y/N]'}),
+                'sure:release',
                 'build',
                 'test',
                 'git:tag',
-                publish({}),
-                versionup({}),
+                'npm:publish',
+                'npm:versionup',
                 'git:push'
+            ],
+            'update': [
+                'npm:update'
             ],
             'watch': [
                 'watch:ui-app'

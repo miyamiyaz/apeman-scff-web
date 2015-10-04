@@ -10,9 +10,17 @@ module.exports = {
     get $cwd() {
         return __dirname;
     },
-    /** Package data. */
-    get $pkg() {
-        return require('../package.json');
+    /** Parent Apemanfile. */
+    get $parent() {
+        return require('../Apemanfile.js');
+    },
+    /** Prototype apps */
+    get $proto() {
+        return [
+            require('apeman-proto-abstract'),
+            require('apeman-proto-basic'),
+            require('apeman-proto-sub')
+        ]
     },
     /**
      * apeman task configurations.
@@ -27,9 +35,9 @@ module.exports = {
                 'copy'
             ],
             'struct': [
-                'struct:mkdir'
+                'fs:mkdir'
             ],
-            'struct:mkdir': mkdir([
+            'fs:mkdir': mkdir([
                 'fonts',
                 'images'
             ]),

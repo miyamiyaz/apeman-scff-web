@@ -10,9 +10,17 @@ module.exports = {
     get $cwd() {
         return __dirname;
     },
-    /** Package data. */
-    get $pkg() {
-        return require('../package.json');
+    /** Parent Apemanfile. */
+    get $parent() {
+        return require('../Apemanfile.js');
+    },
+    /** Prototype apps */
+    get $proto() {
+        return [
+            require('apeman-proto-abstract'),
+            require('apeman-proto-basic'),
+            require('apeman-proto-sub')
+        ]
     },
     /**
      * apeman tmpl configurations.
@@ -31,8 +39,7 @@ module.exports = {
      */
     get $tasks() {
         var mkdir = require('apeman-task-mkdir'),
-            coz = require('apeman-task-coz'),
-            tmpl = require('apeman-task-tmpl');
+            coz = require('apeman-task-coz');
 
         return {
             'build': [
@@ -44,14 +51,7 @@ module.exports = {
             ],
             'struct:mkdir': mkdir([
                 'models'
-            ]),
-            'render': [
-                'render:coz',
-                'render:tmpl'
-            ],
-            'render:coz': coz([
-            ]),
-            'render:tmpl': tmpl({})
+            ])
         }
     }
 };
