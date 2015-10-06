@@ -21,7 +21,12 @@ module.exports = {
             require('apeman-proto-basic'),
             require('apeman-proto-git'),
             require('apeman-proto-sure'),
-            require('apeman-proto-npm')
+            require('apeman-proto-npm'),
+            require('apeman-proto-locale'),
+            require('apeman-proto-coverage'),
+            require('apeman-proto-codeclimate'),
+            require('apeman-proto-env'),
+            require('apeman-proto-travis')
         ];
     },
     /** Children projects */
@@ -40,12 +45,10 @@ module.exports = {
      * @see https://github.com/apeman-labo/apeman-tmpl
      */
     get $tmpls() {
-        var pkg = require('./package.json');
         var ci = require('apeman-tmpl-ci'),
             dot = require('apeman-tmpl-dot'),
-            readme = require('apeman-tmpl-readme'),
-            locale = require('apeman-tmpl-locale'),
-            env = require('apeman-tmpl-env');
+            readme = require('apeman-tmpl-readme');
+
         return {
             'ci/build.js': ci({cmd: 'task', args: 'build'}),
             'ci/misc/build_api_app.js': ci({cmd: 'task', args: 'app:api:build'}),
@@ -60,17 +63,8 @@ module.exports = {
             'doc/readme/02 - Setup.md.hbs': readme({type: 'setupSection'}),
             'doc/links.json': '{}',
             'doc/overview.md': '',
-            'env/index.js': env({type: 'indexJs', name: pkg.name}),
-            'env/database.json': env({type: 'databaseJson', name: pkg.name}),
-            'env/port.json': env({type: 'portJson'}),
-            'env/domain.json': env({type: 'domainJson'}),
-            'locale/en.json': locale({type: 'enJson'}),
-            'locale/ja.json': locale({type: 'jaJson'}),
-            'locale/index.js': locale({type: 'indexJs'}),
             '.README.md.bud': dot({type: 'readmeMdBud'}),
-            '.LICENSE.md.bud': dot({type: 'licenseBud'}),
-            '.codeclimate.yml': dot({type: 'codeclimateYml'}),
-            '.travis.yml': dot({type: 'travisYml'})
+            '.LICENSE.md.bud': dot({type: 'licenseBud'})
         }
     },
     /**
@@ -86,8 +80,7 @@ module.exports = {
             execcli = require('apeman-task-execcli'),
             symlink = require('apeman-task-symlink'),
             bower = require('apeman-task-bower'),
-            watch = require('apeman-task-watch'),
-            codeclimate = require('apeman-task-codeclimate');
+            watch = require('apeman-task-watch');
 
 
         function _task(apemanfile, taskName) {
@@ -140,8 +133,6 @@ module.exports = {
                 '.*.bud',
                 'test/**/.*.bud'
             ]),
-            'render:tmpl': tmpl({}),
-            'report': codeclimate('coverage/lcov.info'),
             'setup': [
                 'install',
                 'cmd:tmpl',
@@ -165,7 +156,6 @@ module.exports = {
                 'db',
                 'doc',
                 'doc/readme',
-                'env',
                 'lib',
                 'lib/browser-lib',
                 'lib/node-lib',
@@ -188,6 +178,9 @@ module.exports = {
                 'npm:publish',
                 'npm:versionup',
                 'git:push'
+            ],
+            'report': [
+                'codeclimate:send'
             ],
             'update': [
                 'npm:update'
