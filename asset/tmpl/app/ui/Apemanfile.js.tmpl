@@ -19,6 +19,7 @@ module.exports = {
         return [
             require('apeman-proto-abstract'),
             require('apeman-proto-basic'),
+            require('apeman-proto-scss'),
             require('apeman-proto-sub')
         ]
     },
@@ -27,6 +28,9 @@ module.exports = {
      * @see https://github.com/apeman-labo/apeman-app
      */
     get $apps() {
+        var env = require('../../env');
+
+
         var route = require('apeman-app-route'),
             header = require('apeman-app-header'),
             lang = require('apeman-app-lang'),
@@ -39,7 +43,7 @@ module.exports = {
                 lang(),
                 json(),
                 delay(0),
-                log('log/access-log', {}),
+                log(env('log').UI, {}), //TODO move to env
                 route({})
             ]
         }
@@ -49,23 +53,7 @@ module.exports = {
      * @see https://github.com/apeman-labo/apeman-tmpl
      */
     get $tmpls() {
-        var scss = require('apeman-tmpl-scss');
         return {
-            'src/scss/variables/size.scss': scss({type: 'size'}),
-            'src/scss/variables/color.scss': scss({type: 'color'}),
-            'src/scss/attributes/container.scss': scss({type: 'container'}),
-            'src/scss/media/large-media.scss': scss({type: 'largeMedia'}),
-            'src/scss/media/medium-media.scss': scss({type: 'mediumMedia'}),
-            'src/scss/media/small-media.scss': scss({type: 'smallMedia'}),
-            'src/scss/components/html.scss': scss({type: 'component', name: 'html'}),
-            'src/scss/components/body.scss': scss({type: 'component', name: 'body'}),
-            'src/scss/components/main.scss': scss({type: 'component', name: 'main'}),
-            'src/scss/components/aside.scss': scss({type: 'component', name: 'aside'}),
-            'src/scss/components/header.scss': scss({type: 'component', name: 'header'}),
-            'src/scss/components/footer.scss': scss({type: 'component', name: 'footer'}),
-            'src/scss/components/table.scss': scss({type: 'component', name: 'table'}),
-            'src/scss/components/button.scss': scss({type: 'component', class: 'button'}),
-            'src/scss/ui-app.scss': scss({type: 'application'})
         }
     },
     /**
@@ -76,26 +64,19 @@ module.exports = {
         var mkdir = require('apeman-task-mkdir'),
             jsx = require('apeman-task-jsx'),
             coz = require('apeman-task-coz'),
-            scss = require('apeman-task-scss'),
             tmpl = require('apeman-task-tmpl'),
             symlink = require('apeman-task-symlink');
         return {
             'build': [
+                'cmd:tmpl',
                 'struct',
                 'render',
                 'compile'
             ],
             'compile': [
-                'compile:scss'
+                'scss:compile'
             ],
-            'compile:scss': scss(
-                'src/scss/ui-app.scss', 'public/ui-app.css'
-            ),
-            'render': [
-                'render:coz',
-                'render:tmpl'
-            ],
-            'render:coz': coz([]),
+            'coz:render': coz([]),
             'render:tmpl': tmpl({}),
             'struct': [
                 'fs:mkdir',

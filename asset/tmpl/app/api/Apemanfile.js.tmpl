@@ -5,6 +5,7 @@
 
 "use strict";
 
+
 module.exports = {
     /** Current working directory path */
     get $cwd() {
@@ -27,11 +28,17 @@ module.exports = {
      * @see https://github.com/apeman-labo/apeman-app
      */
     get $apps() {
+        var env = require('../../env'),
+            db = require('../../db');
+
         var route = require('apeman-app-route'),
             header = require('apeman-app-header'),
             lang = require('apeman-app-lang'),
             json = require('apeman-app-json'),
+            query = require('apeman-app-query'),
+            form = require('apeman-app-form'),
             delay = require('apeman-app-delay'),
+            session = require('apeman-app-session'),
             log = require('apeman-app-log');
         return {
             '/': [
@@ -39,7 +46,13 @@ module.exports = {
                 lang(),
                 json(),
                 delay(0),
-                log('log/access-log', {}),
+                log(env('log').API, {}),
+                query(),
+                form(),
+                session(
+                    db.models.Session,
+                    env('session').SECRET
+                ),
                 route({})
             ]
         }

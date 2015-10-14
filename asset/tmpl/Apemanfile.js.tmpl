@@ -31,14 +31,15 @@ module.exports = {
     },
     /** Children projects */
     get $children() {
-        return [
-            require('./app/api/Apemanfile'),
-            require('./app/ui/Apemanfile'),
-            require('./asset/Apemanfile'),
-            require('./db/Apemanfile'),
-            require('./lib/browser-lib/Apemanfile'),
-            require('./lib/node-lib/Apemanfile')
-        ]
+        return {
+            'api-app': require('./app/api/Apemanfile'),
+            'ui-app': require('./app/ui/Apemanfile'),
+            'asset': require('./asset/Apemanfile'),
+            'db': require('./db/Apemanfile'),
+            'browser-lib': require('./lib/browser-lib/Apemanfile'),
+            'node-lib': require('./lib/node-lib/Apemanfile')
+        }
+
     },
     /**
      * apeman tmpl configurations.
@@ -51,12 +52,13 @@ module.exports = {
 
         return {
             'ci/build.js': ci({cmd: 'task', args: 'build'}),
-            'ci/misc/build_api_app.js': ci({cmd: 'task', args: 'app:api:build'}),
-            'ci/misc/build_asset.js': ci({cmd: 'task', args: 'asset:build'}),
-            'ci/misc/build_ui_app.js': ci({cmd: 'task', args: 'app:ui:build'}),
-            'ci/misc/build_browser_lib.js': ci({cmd: 'task', args: 'lib:browser:build'}),
+            'ci/misc/build_api_app.js': ci({cmd: 'task', args: 'api-app#build'}),
+            'ci/misc/build_asset.js': ci({cmd: 'task', args: 'asset#build'}),
+            'ci/misc/build_db.js': ci({cmd: 'task', args: 'db#build'}),
+            'ci/misc/build_ui_app.js': ci({cmd: 'task', args: 'ui-app#build'}),
+            'ci/misc/build_browser_lib.js': ci({cmd: 'task', args: 'browser-lib#build'}),
             'ci/misc/install_bower.js': ci({cmd: 'task', args: 'bower:install'}),
-            'ci/misc/build_node_lib.js': ci({cmd: 'task', args: 'lib:node:build'}),
+            'ci/misc/build_node_lib.js': ci({cmd: 'task', args: 'node-lib#build'}),
             'ci/report.js': ci({cmd: 'task', args: 'report'}),
             'ci/release.js': ci({cmd: 'task', args: 'release'}),
             'doc/readme/01 - Requirements.md.hbs': readme({type: 'requirementsSection'}),
@@ -82,44 +84,25 @@ module.exports = {
             bower = require('apeman-task-bower'),
             watch = require('apeman-task-watch');
 
-
-        function _task(apemanfile, taskName) {
-            return task(taskName, {
-                configuration: require.resolve(apemanfile)
-            });
-        }
-
         function _watch(apemanfile, watchName) {
             return watch(watchName, {
                 configuration: require.resolve(apemanfile)
             });
         }
 
-        var _apiAppTask = _task.bind(_task, './app/api/Apemanfile'),
-            _uiAppTask = _task.bind(_task, './app/ui/Apemanfile'),
-            _assetTask = _task.bind(_task, './asset/Apemanfile'),
-            _dbTask = _task.bind(_task, './db/Apemanfile'),
-            _browserLibTask = _task.bind(_task, './lib/browser-lib/Apemanfile'),
-            _nodeLibTask = _task.bind(_task, './lib/node-lib/Apemanfile');
 
         var _uiAppWatch = _watch.bind(_watch, './app/ui/Apemanfile');
 
         return {
-            'app:api:build': _apiAppTask('build'),
-            'app:ui:build': _uiAppTask('build'),
-            'asset:build': _assetTask('build'),
-            'db:build': _dbTask('build'),
-            'lib:browser:build': _browserLibTask('build'),
-            'lib:node:build': _nodeLibTask('build'),
             'build': [
                 'struct',
                 'render',
-                'asset:build',
-                'app:api:build',
-                'app:ui:build',
-                'db:build',
-                'lib:browser:build',
-                'lib:node:build'
+                'asset#build',
+                'api-app#build',
+                'ui-app#build',
+                'db#build',
+                'browser-lib#build',
+                'node-lib#build'
             ],
             'install': [
                 'npm:install',
@@ -136,6 +119,7 @@ module.exports = {
             'setup': [
                 'install',
                 'cmd:tmpl',
+                'db#clean:tmp',
                 'build'
             ],
             'struct': [
@@ -159,7 +143,6 @@ module.exports = {
                 'lib',
                 'lib/browser-lib',
                 'lib/node-lib',
-                'locale',
                 'tmp',
                 'var',
                 'var/log',

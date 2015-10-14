@@ -19,6 +19,7 @@ module.exports = {
         return [
             require('apeman-proto-abstract'),
             require('apeman-proto-basic'),
+            require('apeman-proto-db'),
             require('apeman-proto-sub')
         ]
     },
@@ -28,10 +29,7 @@ module.exports = {
      */
     get $tmpls() {
         var db = require('apeman-tmpl-db');
-        return {
-            'index.js': db({type: 'indexJs'}),
-            'models/user.json': db({type: 'userJson'})
-        }
+        return {}
     },
     /**
      * apeman task configurations.
@@ -41,15 +39,23 @@ module.exports = {
         var mkdir = require('apeman-task-mkdir'),
             coz = require('apeman-task-coz');
 
+        var db = require('./index.js');
         return {
             'build': [
                 'struct',
                 'render'
             ],
+            'db:sync': function (ctx, callback) {
+                db.sync({force: false}).then(function (db) {
+                    callback(null);
+                }).catch(function (e) {
+                    callback(e);
+                });
+            },
             'struct': [
-                'struct:mkdir'
+                'fs:mkdir'
             ],
-            'struct:mkdir': mkdir([
+            'fs:mkdir': mkdir([
                 'models'
             ])
         }
