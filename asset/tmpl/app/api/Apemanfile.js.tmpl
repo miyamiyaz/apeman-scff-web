@@ -19,8 +19,7 @@ module.exports = {
     get $proto() {
         return [
             require('apeman-proto-abstract'),
-            require('apeman-proto-basic'),
-            require('apeman-proto-sub')
+            require('apeman-proto-child')
         ]
     },
     /**
@@ -28,27 +27,20 @@ module.exports = {
      * @see https://github.com/apeman-labo/apeman-app
      */
     get $apps() {
-        var env = require('../../env'),
-            db = require('../../db');
+        var env= require('../../env'),
+            db= require('../../db');
 
-        var route = require('apeman-app-route'),
-            header = require('apeman-app-header'),
-            lang = require('apeman-app-lang'),
-            json = require('apeman-app-json'),
-            query = require('apeman-app-query'),
-            form = require('apeman-app-form'),
+        var dynamic = require('apeman-app-dynamic'),
+            route = require('apeman-app-route'),
             delay = require('apeman-app-delay'),
             session = require('apeman-app-session'),
             log = require('apeman-app-log');
+
         return {
             '/': [
-                header(),
-                lang(),
-                json(),
+                dynamic({}),
                 delay(0),
                 log(env('log').API, {}),
-                query(),
-                form(),
                 session(
                     db.models.Session,
                     env('session').SECRET
@@ -73,9 +65,6 @@ module.exports = {
             symlink = require('apeman-task-symlink');
         return {
             'build': [
-                'struct'
-            ],
-            'struct': [
                 'fs:mkdir',
                 'fs:symlink'
             ],

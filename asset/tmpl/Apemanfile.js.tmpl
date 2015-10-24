@@ -26,7 +26,11 @@ module.exports = {
             require('apeman-proto-coverage'),
             require('apeman-proto-codeclimate'),
             require('apeman-proto-env'),
-            require('apeman-proto-travis')
+            require('apeman-proto-travis'),
+            require('apeman-proto-asset'),
+            require('apeman-proto-db'),
+            require('apeman-proto-ionicons'),
+            require('apeman-proto-fontawesome')
         ];
     },
     /** Children projects */
@@ -34,37 +38,21 @@ module.exports = {
         return {
             'api-app': require('./app/api/Apemanfile'),
             'ui-app': require('./app/ui/Apemanfile'),
-            'asset': require('./asset/Apemanfile'),
-            'db': require('./db/Apemanfile'),
             'browser-lib': require('./lib/browser-lib/Apemanfile'),
             'node-lib': require('./lib/node-lib/Apemanfile')
         }
-
     },
     /**
      * apeman tmpl configurations.
      * @see https://github.com/apeman-labo/apeman-tmpl
      */
     get $tmpls() {
-        var ci = require('apeman-tmpl-ci'),
-            dot = require('apeman-tmpl-dot'),
+        var dot = require('apeman-tmpl-dot'),
             readme = require('apeman-tmpl-readme');
 
         return {
-            'ci/build.js': ci({cmd: 'task', args: 'build'}),
-            'ci/misc/build_api_app.js': ci({cmd: 'task', args: 'api-app#build'}),
-            'ci/misc/build_asset.js': ci({cmd: 'task', args: 'asset#build'}),
-            'ci/misc/build_db.js': ci({cmd: 'task', args: 'db#build'}),
-            'ci/misc/build_ui_app.js': ci({cmd: 'task', args: 'ui-app#build'}),
-            'ci/misc/build_browser_lib.js': ci({cmd: 'task', args: 'browser-lib#build'}),
-            'ci/misc/install_bower.js': ci({cmd: 'task', args: 'bower:install'}),
-            'ci/misc/build_node_lib.js': ci({cmd: 'task', args: 'node-lib#build'}),
-            'ci/report.js': ci({cmd: 'task', args: 'report'}),
-            'ci/release.js': ci({cmd: 'task', args: 'release'}),
             'doc/readme/01 - Requirements.md.hbs': readme({type: 'requirementsSection'}),
             'doc/readme/02 - Setup.md.hbs': readme({type: 'setupSection'}),
-            'doc/links.json': '{}',
-            'doc/overview.md': '',
             '.README.md.bud': dot({type: 'readmeMdBud'}),
             '.LICENSE.md.bud': dot({type: 'licenseBud'})
         }
@@ -84,73 +72,44 @@ module.exports = {
             bower = require('apeman-task-bower'),
             watch = require('apeman-task-watch');
 
-        function _watch(apemanfile, watchName) {
-            return watch(watchName, {
-                configuration: require.resolve(apemanfile)
-            });
-        }
-
-
-        var _uiAppWatch = _watch.bind(_watch, './app/ui/Apemanfile');
 
         return {
             'build': [
-                'struct',
-                'render',
-                'asset#build',
+                'fs:mkdir',
+                'fs:chmod',
+                'fs:symlink',
+                'coz:render',
                 'api-app#build',
                 'ui-app#build',
-                'db#build',
                 'browser-lib#build',
                 'node-lib#build'
             ],
-            'install': [
-                'npm:install',
-                'bower:install'
+            'cover': [
+                'coverage:test'
             ],
-            'bower:install': bower([
-                'font-awesome',
-                'ionicons'
-            ]),
-            'coz:render': coz([
-                '.*.bud',
-                'test/**/.*.bud'
-            ]),
             'setup': [
-                'install',
-                'cmd:tmpl',
-                'db#clean:tmp',
+                'npm:install',
+                'ionicons:install',
+                'ionicons:extract',
+                'fontawesome:install',
+                'fontawesome:extract',
+                'tmpl:render',
                 'build'
             ],
-            'struct': [
-                'fs:mkdir',
-                'fs:chmod',
-                'fs:symlink'
+            'fs:mkdir': [
+                mkdir([
+                    'app',
+                    'bin',
+                    'ci',
+                    'doc',
+                    'lib',
+                    'tmp',
+                    'var'
+                ]),
+                'locale:mkdir',
+                'db:mkdir',
+                'asset:mkdir'
             ],
-            'fs:mkdir': mkdir([
-                'app',
-                'app/api',
-                'app/ui',
-                'app/admin-api',
-                'app/admin-ui',
-                'asset',
-                'bin',
-                'ci',
-                'ci/misc',
-                'db',
-                'doc',
-                'doc/readme',
-                'lib',
-                'lib/browser-lib',
-                'lib/node-lib',
-                'tmp',
-                'var',
-                'var/log',
-                'var/log/api-log',
-                'var/log/admin-api-log',
-                'var/log/ui-log',
-                'var/log/admin-ui-log'
-            ]),
             'fs:symlink': [],
             'test': [],
             'release': [
@@ -162,16 +121,16 @@ module.exports = {
                 'npm:versionup',
                 'git:push'
             ],
-            'report': [
-                'codeclimate:send'
-            ],
             'update': [
                 'npm:update'
             ],
-            'watch': [
-                'watch:ui-app'
-            ],
-            'watch:ui-app': _uiAppWatch('all')
+            'travis:build': [
+                'setup',
+                'build',
+                'test',
+                'cover',
+                'codeclimate:send'
+            ]
         }
     }
 };

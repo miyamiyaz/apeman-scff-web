@@ -10,16 +10,11 @@ module.exports = {
     get $cwd() {
         return __dirname;
     },
-    /** Package data. */
-    get $pkg() {
-        return require('../../package.json');
-    },
     /** Prototype apps */
     get $proto() {
         return [
             require('apeman-proto-abstract'),
-            require('apeman-proto-basic'),
-            require('apeman-proto-sub')
+            require('apeman-proto-child')
         ]
     },
     /**

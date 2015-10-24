@@ -18,9 +18,8 @@ module.exports = {
     get $proto() {
         return [
             require('apeman-proto-abstract'),
-            require('apeman-proto-basic'),
             require('apeman-proto-scss'),
-            require('apeman-proto-sub')
+            require('apeman-proto-child')
         ]
     },
     /**
@@ -30,18 +29,13 @@ module.exports = {
     get $apps() {
         var env = require('../../env');
 
-
-        var route = require('apeman-app-route'),
-            header = require('apeman-app-header'),
-            lang = require('apeman-app-lang'),
-            json = require('apeman-app-json'),
+        var dynamic = require('apeman-app-dynamic'),
+            route = require('apeman-app-route'),
             delay = require('apeman-app-delay'),
             log = require('apeman-app-log');
         return {
             '/': [
-                header(),
-                lang(),
-                json(),
+                dynamic({}),
                 delay(0),
                 log(env('log').UI, {}), //TODO move to env
                 route({})
@@ -68,20 +62,15 @@ module.exports = {
             symlink = require('apeman-task-symlink');
         return {
             'build': [
-                'cmd:tmpl',
-                'struct',
-                'render',
+                'fs:mkdir',
+                'fs:symlink',
                 'compile'
             ],
             'compile': [
                 'scss:compile'
             ],
             'coz:render': coz([]),
-            'render:tmpl': tmpl({}),
-            'struct': [
-                'fs:mkdir',
-                'fs:symlink'
-            ],
+            'tmpl:render': tmpl({}),
             'fs:mkdir': mkdir([
                 'public',
                 'src',
