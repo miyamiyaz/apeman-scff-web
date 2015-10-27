@@ -9,7 +9,7 @@ var apeTmpl = require('ape-tmpl'),
 
 module.exports = apeTmpl.readmeMdBud({
     pkg: pkg,
-    repo: 'apeman-scaffold-labo/apeman-scaffold-web',
+    repo: pkg.repository,
     sections: 'doc/readme/*.md.hbs',
     badges: {
         travis: true,

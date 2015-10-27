@@ -1,9 +1,9 @@
 /**
- * Test case for scaffold.
+ * Test case for scff.
  * Runs with nodeunit.
  */
 
-var scaffold = require('../lib/scaffold.js');
+var scff = require('../lib/scff.js');
 
 exports.setUp = function (done) {
     done();
@@ -13,8 +13,8 @@ exports.tearDown = function (done) {
     done();
 };
 
-exports['Scaffold'] = function (test) {
-    test.ok(scaffold);
+exports['Scff'] = function (test) {
+    test.ok(scff);
     test.done();
 };
 

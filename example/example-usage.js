@@ -1,7 +1,7 @@
-var apemanScaffold = require('apeman-scaffold'),
-    scaffold = require('apeman-scaffold-web');
+var apemanScff = require('apeman-scff'),
+    scff = require('apeman-scff-web');
 
-apemanScaffold(scaffold, 'project/my-awesome-project', {
+apemanScff(scff, 'project/my-awesome-project', {
     silent: false,
     force: false
 }, function (err) {
