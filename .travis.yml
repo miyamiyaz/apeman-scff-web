@@ -2,7 +2,7 @@ language: node_js
 node_js:
 - '0.11'
 before_install: 
-- npm install nodeunit istanbul -g 
+- npm install nodeunit istanbul bower mocha -g 
 install:
 - npm install
 before_script:
