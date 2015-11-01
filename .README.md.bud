@@ -5,6 +5,8 @@
 "use strict";
 
 var apeTmpl = require('ape-tmpl'),
+    expandglob = require('expandglob'),
+    path = require('path'),
     pkg = require('./package.json');
 
 module.exports = apeTmpl.readmeMdBud({
@@ -20,7 +22,17 @@ module.exports = apeTmpl.readmeMdBud({
     },
     overview: 'doc/overview.md',
     links: require('./doc/links.json'),
-    vars: {}
+    vars: {
+        get files() {
+            var tmplDir = 'asset/tmpl';
+            return expandglob.sync('**/*.tmpl', {cwd: tmplDir}).map(function (filename) {
+                return {
+                    filename: filename.replace(/\.tmpl$/, ''),
+                    link: path.join('.', tmplDir, filename)
+                }
+            })
+        }
+    }
 });
 
 if (!module.parent) {

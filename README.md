@@ -83,6 +83,26 @@ apemanScff(scff, 'project/my-awesome-project', {
 
 <!-- Section from "doc/readme/02.Usage.md.hbs" End -->
 
+<!-- Section from "doc/readme/03.Templates.md.hbs" Start -->
+
+<a name="section-doc-readme-03-templates-md"></a>
+Template Files
+--------------
+
++ [Apemanfile.js](asset/tmpl/Apemanfile.js.tmpl)
++ [app/api/Apemanfile.js](asset/tmpl/app/api/Apemanfile.js.tmpl)
++ [app/ui/Apemanfile.js](asset/tmpl/app/ui/Apemanfile.js.tmpl)
++ [lib/browser-lib/Apemanfile.js](asset/tmpl/lib/browser-lib/Apemanfile.js.tmpl)
++ [lib/node-lib/Apemanfile.js](asset/tmpl/lib/node-lib/Apemanfile.js.tmpl)
++ [node_modules/apeman-proto-db/Apemanfile.js](asset/tmpl/node_modules/apeman-proto-db/Apemanfile.js.tmpl)
++ [node_modules/apeman-proto-env/Apemanfile.js](asset/tmpl/node_modules/apeman-proto-env/Apemanfile.js.tmpl)
++ [node_modules/apeman-proto-scss/Apemanfile.js](asset/tmpl/node_modules/apeman-proto-scss/Apemanfile.js.tmpl)
++ [node_modules/apeman-proto-travis/Apemanfile.js](asset/tmpl/node_modules/apeman-proto-travis/Apemanfile.js.tmpl)
++ [package.json](asset/tmpl/package.json.tmpl)
+
+
+<!-- Section from "doc/readme/03.Templates.md.hbs" End -->
+
 
 <!-- Sections Start -->
 
