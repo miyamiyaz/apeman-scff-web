@@ -19,7 +19,8 @@ module.exports = {
     get $proto() {
         return [
             require('apeman-proto-abstract'),
-            require('apeman-proto-child')
+            require('apeman-proto-child'),
+            require('apeman-proto-mocha')
         ]
     },
     /**
@@ -27,25 +28,40 @@ module.exports = {
      * @see https://github.com/apeman-labo/apeman-app
      */
     get $apps() {
-        var env= require('../../env'),
-            db= require('../../db');
+        var env = require('../../env'),
+            db = require('../../db');
 
         var dynamic = require('apeman-app-dynamic'),
-            route = require('apeman-app-route'),
             delay = require('apeman-app-delay'),
+            signed = require('apeman-app-signed'),
             session = require('apeman-app-session'),
             log = require('apeman-app-log');
 
         return {
-            '/': [
-                dynamic({}),
-                delay(0),
-                log(env('log').API, {}),
-                session(
-                    db.models.Session,
-                    env('session').SECRET
-                ),
-                route({})
+            'api~base': {
+                '/': [
+                    function (req, res, next) {
+                        next();
+                    },
+                    dynamic({}),
+                    delay(0),
+                    log(env('log').API, {}),
+                    session(
+                        db, 'session', env('session').SECRET
+                    ),
+                    signed()
+                ]
+            },
+            'api~sign': {
+                '/sign': require('./routes/sign_route')
+            },
+            'api~rest': {
+                '/user': require('./routes/user_route')
+            },
+            'api': [
+                'api~base',
+                'api~sign',
+                'api~rest'
             ]
         }
     },
@@ -74,7 +90,11 @@ module.exports = {
                 'test'
             ]),
             'fs:symlink': [
-                symlink('../../var/log/api-log', 'log')
+                symlink('../../var', 'var'),
+                symlink('../../tmp', 'tmp')
+            ],
+            'test': [
+                'mocha:run'
             ]
         }
     }

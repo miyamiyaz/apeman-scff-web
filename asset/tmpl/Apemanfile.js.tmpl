@@ -43,6 +43,15 @@ module.exports = {
         }
     },
     /**
+     * apeman app configurations.
+     * @see https://github.com/apeman-labo/apeman-app
+     */
+    get $apps() {
+        return {
+
+        }
+    },
+    /**
      * apeman tmpl configurations.
      * @see https://github.com/apeman-labo/apeman-tmpl
      */
@@ -110,7 +119,9 @@ module.exports = {
                 'asset:mkdir'
             ],
             'fs:symlink': [],
-            'test': [],
+            'test': [
+                'api-app#test'
+            ],
             'release': [
                 'sure:release',
                 'build',
@@ -129,6 +140,17 @@ module.exports = {
                 'test',
                 'cover',
                 'codeclimate:send'
+            ]
+        }
+    },
+    /**
+     * apeman watch configurations.
+     * @see https://github.com/apeman-labo/apeman-wch
+     */
+    get $wchs() {
+        return {
+            'all': [
+                'ui-app#scss~compile'
             ]
         }
     }

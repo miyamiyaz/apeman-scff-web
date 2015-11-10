@@ -27,6 +27,7 @@ apeTasking.runTasks('tmplify', [
                 'package.json'
             ],
             ignore: [
+                'node_modules/**/Apemanfile.js',
                 '.DS_Store',
                 '.svg'
             ],
